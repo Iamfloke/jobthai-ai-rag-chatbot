@@ -27,9 +27,6 @@ A project that scrapes job listings for **Data Engineer** roles from [JobThai.co
 
 ### 1. Clone the repo
 
-git clone https://github.com/Iamfloke/jobthai-ai-recommender.git
-cd jobthai-ai-recommender
-
 ### 2. Create .env file. the api key is from openai. you can create it from https://platform.openai.com/api-keys
 
 OPENAI_API_KEY=sk-xxxxxx
@@ -72,6 +69,7 @@ curl -X POST http://localhost:8080/recommend \
 
 Response:
 
+<pre>
 [
   {
     "title": "Data Engineer - WFH",
@@ -83,6 +81,7 @@ Response:
   },
   ...
 ]
+</pre>
 
 ### 6. stop container
 

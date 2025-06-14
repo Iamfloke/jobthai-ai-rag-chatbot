@@ -1,0 +1,25 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+/bk/
+/data/
+
+# Virtual environments
+env/
+venv/
+.devcontainer
+
+# VSCode settings
+.vscode/
+
+# Sensitive files
+.env
+
+# Misc
+*.log
+*.bak
+backup.txt
+.DS_Store
+

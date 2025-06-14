@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>JobThai AI Chatbot</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .chat-bubble {
+      max-width: 75%;
+      padding: 0.75rem 1rem;
+      border-radius: 1rem;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center text-gray-800">
+
+  <div class="w-full max-w-2xl bg-white shadow-lg rounded-xl overflow-hidden flex flex-col h-[90vh]">
+    <div class="bg-blue-600 text-white px-4 py-3 text-xl font-semibold">💬 JobThai AI Chatbot</div>
+
+    <div id="chat" class="flex-1 overflow-y-auto px-4 py-3 space-y-4">
+      <!-- Messages will appear here -->
+    </div>
+
+    <div class="p-3 border-t flex gap-2">
+      <input id="userInput" type="text" placeholder="Type your job query..." class="flex-1 border px-3 py-2 rounded-md" />
+      <button onclick="sendMessage()" class="bg-blue-600 text-white px-4 py-2 rounded-md">Send</button>
+    </div>
+  </div>
+
+  <script>
+    let typingElement = null;
+    const chat = document.getElementById('chat');
+    const input = document.getElementById('userInput');
+
+    function addTypingIndicator() {
+      typingElement = document.createElement('div');
+      typingElement.className = 'flex items-start space-x-2';
+      typingElement.innerHTML = `
+        <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-sm font-bold">🤖</div>
+        <div class="chat-bubble bg-gray-200 text-left italic">
+          Typing<span class="animate-pulse">...</span>
+        </div>
+      `;
+      chat.appendChild(typingElement);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function removeTypingIndicator() {
+      if (typingElement) {
+        chat.removeChild(typingElement);
+        typingElement = null;
+      }
+    }
+
+    input.addEventListener("keydown", function (event) {
+      if (event.key === "Enter") {
+        sendMessage();
+      }
+    });
+
+    function addMessage(sender, text, isBot = false) {
+      const msgWrapper = document.createElement('div');
+      msgWrapper.className = `flex items-start space-x-2 ${isBot ? '' : 'justify-end'}`;
+
+      const avatar = document.createElement('div');
+      avatar.className = 'w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-sm font-bold';
+      avatar.textContent = isBot ? '🤖' : '👤';
+
+      const bubble = document.createElement('div');
+      bubble.className = `chat-bubble ${isBot ? 'bg-gray-200 text-left' : 'bg-blue-600 text-white text-right'}`;
+      bubble.innerHTML = text;
+
+      if (isBot) {
+        msgWrapper.appendChild(avatar);
+        msgWrapper.appendChild(bubble);
+      } else {
+        msgWrapper.appendChild(bubble);
+        msgWrapper.appendChild(avatar);
+      }
+
+      chat.appendChild(msgWrapper);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    async function sendMessage() {
+      const query = input.value.trim();
+      if (!query) return;
+
+      addMessage("You", query, false);
+      input.value = "";
+
+      addTypingIndicator();
+
+      input.disabled = true;
+      const response = await fetch("/recommend", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query })
+      });
+      input.disabled = false;
+
+      removeTypingIndicator();
+
+      const data = await response.json();
+      if (data.error) {
+        addMessage("Bot", `<span class="text-red-600">❌ ${data.error}</span>`, true);
+        return;
+      }
+
+      if (data.length === 0) {
+        addMessage("Bot", "no jobs found. maybe use another word.", true);
+        return;
+      }
+
+      const jobs = data.map(j =>
+        `<strong>${j.title}</strong><br>${j.company}<br>📍 ${j.location}<br>💰 ${j.salary}<br><a href="${j.url}" target="_blank" class="text-blue-500 underline">View Job</a>`
+      ).join("<hr class='my-2'>");
+
+      addMessage("Bot", `found your matched jobs. please look below 👇<br><br>${jobs}`, true);
+    }
+  </script>
+</body>
+</html>

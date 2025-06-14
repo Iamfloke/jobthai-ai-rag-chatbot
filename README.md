@@ -6,6 +6,7 @@ A project that scrapes job listings for **Data Engineer** roles from [JobThai.co
 
 ## 📁 Project Structure
 
+<pre>
 ├── app/
 │ ├── templates/
 │ │  ├──index.html # for ui web page
@@ -18,6 +19,7 @@ A project that scrapes job listings for **Data Engineer** roles from [JobThai.co
 ├── docker-compose.yml
 ├── requirements.txt
 └── README.md
+</pre>
 
 ---
 
